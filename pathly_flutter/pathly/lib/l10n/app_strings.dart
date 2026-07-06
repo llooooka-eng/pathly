@@ -170,6 +170,11 @@ class AppStrings {
   String get reminderBody      => _t(ar: 'خصّص دقائق لهدفك اليوم. استمر في مسارك!', en: 'Spend a few minutes on your goal today. Keep your streak!', fr: 'Consacrez quelques minutes à votre objectif. Gardez votre série !', es: 'Dedica unos minutos a tu meta hoy. ¡Mantén tu racha!', tr: 'Bugün hedefine birkaç dakika ayır. Serini koru!', ur: 'آج اپنے ہدف کے لیے چند منٹ نکالیں۔ سلسلہ جاری رکھیں!', hi: 'आज अपने लक्ष्य पर कुछ मिनट दें। अपनी लकीर बनाए रखें!', id: 'Luangkan beberapa menit untuk tujuanmu hari ini. Jaga streakmu!', ms: 'Luangkan beberapa minit untuk matlamat anda hari ini!', sw: 'Tumia dakika chache kwa lengo lako leo. Endeleza msururu wako!');
   String get permissionDenied  => _t(ar: 'لم يتم منح إذن الإشعارات', en: 'Notification permission not granted', fr: 'Permission de notification refusée', es: 'Permiso de notificaciones denegado', tr: 'Bildirim izni verilmedi', ur: 'اطلاع کی اجازت نہیں ملی', hi: 'सूचना अनुमति नहीं मिली', id: 'Izin notifikasi tidak diberikan', ms: 'Kebenaran pemberitahuan tidak diberikan', sw: 'Ruhusa ya arifa haijatolewa');
 
+  // Share progress
+  String get shareProgress  => _t(ar: 'شارك تقدمي', en: 'Share my progress', fr: 'Partager ma progression', es: 'Compartir mi progreso', tr: 'İlerlememi paylaş', ur: 'میری پیشرفت شیئر کریں', hi: 'मेरी प्रगति साझा करें', id: 'Bagikan kemajuan saya', ms: 'Kongsi kemajuan saya', sw: 'Shiriki maendeleo yangu');
+  String get shareHeadline  => _t(ar: '🎯 تقدمي في Pathly', en: '🎯 My progress on Pathly', fr: '🎯 Ma progression sur Pathly', es: '🎯 Mi progreso en Pathly', tr: '🎯 Pathly\'deki ilerlemem', ur: '🎯 Pathly پر میری پیشرفت', hi: '🎯 Pathly पर मेरी प्रगति', id: '🎯 Kemajuan saya di Pathly', ms: '🎯 Kemajuan saya di Pathly', sw: '🎯 Maendeleo yangu kwenye Pathly');
+  String get shareNoData    => _t(ar: 'لا يوجد هدف لمشاركته بعد', en: 'No goal to share yet', fr: 'Aucun objectif à partager', es: 'Aún no hay meta para compartir', tr: 'Paylaşılacak hedef yok', ur: 'ابھی شیئر کرنے کے لیے کوئی ہدف نہیں', hi: 'साझा करने के लिए कोई लक्ष्य नहीं', id: 'Belum ada tujuan untuk dibagikan', ms: 'Tiada matlamat untuk dikongsi', sw: 'Hakuna lengo la kushiriki bado');
+
   // ─── Helper ───────────────────────────────────────────────────────────────
   String _t({
     required String ar,
