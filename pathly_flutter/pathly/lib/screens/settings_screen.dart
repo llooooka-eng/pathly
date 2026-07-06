@@ -6,6 +6,7 @@ import '../services/notification_service.dart';
 import '../services/sync_service.dart';
 import '../services/goals_provider.dart';
 import '../theme/app_theme.dart';
+import 'team_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -270,6 +271,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _sectionTitle(s.cloudSync),
                 const SizedBox(height: 8),
                 _buildSyncSection(s),
+                const SizedBox(height: 20),
+                _sectionTitle(s.team),
+                const SizedBox(height: 8),
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.groups_rounded, color: PathlyTheme.primary),
+                    title: Text(s.team,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                    subtitle: Text(s.teamDesc,
+                        style: const TextStyle(fontSize: 12, color: PathlyTheme.textMuted)),
+                    trailing: const Icon(Icons.chevron_right_rounded, color: PathlyTheme.textMuted),
+                    onTap: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const TeamScreen())),
+                  ),
+                ),
               ],
             ),
     );

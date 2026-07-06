@@ -37,7 +37,7 @@ flutterfire configure
   إلى `ios/Runner/Info.plist` تحت `CFBundleURLTypes`.
 
 ## 5) قواعد أمان Firestore
-كل مستخدم يقرأ/يكتب مستنده فقط تحت `users/{uid}`:
+كل مستخدم يقرأ/يكتب مستنده فقط، وأي مستخدم مسجَّل يمكنه قراءة/الانضمام للفرق:
 ```
 rules_version = '2';
 service cloud.firestore {
@@ -45,9 +45,23 @@ service cloud.firestore {
     match /users/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
+    // الفرق: أي مستخدم مسجَّل يقرأ الفريق (لإيجاده بالرمز) ويحدّث عضويته
+    match /teams/{teamId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.ownerUid == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+
+      match /members/{uid} {
+        allow read: if request.auth != null;
+        // كل عضو يكتب/يحذف سجلّ عضويته فقط
+        allow write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
   }
 }
 ```
+> ملاحظة: البحث عن فريق بالرمز يتطلب `allow read` على `teams`. لتشديد الأمان لاحقًا
+> يمكن نقل البحث بالرمز إلى Cloud Function.
 
 ## 6) شغّل
 ```bash
@@ -62,8 +76,12 @@ flutter run
 users/{uid} = {
   goals: [ { id, title, category, description, startDate, targetDate,
              currentStreak, totalDays, progress, lessons, isPro }, ... ],
-  updatedAt: <serverTimestamp>
+  updatedAt: <serverTimestamp>,
+  teamId: <مرجع الفريق الحالي، إن وُجد>
 }
+
+teams/{teamId} = { name, code, ownerUid, createdAt }
+teams/{teamId}/members/{uid} = { email, streak, goals, updatedAt }
 ```
 
 ## ملاحظات

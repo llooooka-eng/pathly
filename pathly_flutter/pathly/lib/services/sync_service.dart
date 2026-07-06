@@ -54,7 +54,7 @@ class SyncService {
     await doc.set({
       'goals': goals.map((g) => g.toJson()).toList(),
       'updatedAt': FieldValue.serverTimestamp(),
-    });
+    }, SetOptions(merge: true));
   }
 
   /// استرجاع الأهداف من السحابة، أو null إن لم توجد نسخة محفوظة.
