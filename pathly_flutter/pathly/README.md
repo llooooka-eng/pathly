@@ -73,11 +73,13 @@ flutter build ios --release
 | إشعارات تذكير يومية | ✅ |
 | مشاركة التقدم | ✅ |
 | دعم الصوت والنطق (TTS) | ✅ |
+| المزامنة السحابية (Firebase + Google) | ✅ * |
+
+\* المزامنة السحابية جاهزة برمجيًا لكنها تتطلب إعداد Firebase — انظر [FIREBASE_SETUP.md](FIREBASE_SETUP.md).
 
 ## الميزات القادمة (v2)
 
 - [ ] خطة Team
-- [ ] مزامنة مع iCloud / Google Drive
 
 ## نموذج العمل
 

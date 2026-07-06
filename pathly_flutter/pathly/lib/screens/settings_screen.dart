@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/language_provider.dart';
+import '../l10n/app_strings.dart';
 import '../services/notification_service.dart';
+import '../services/sync_service.dart';
+import '../services/goals_provider.dart';
 import '../theme/app_theme.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -15,6 +18,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _enabled = false;
   TimeOfDay _time = const TimeOfDay(hour: 20, minute: 0);
   bool _loading = true;
+  bool _syncBusy = false;
 
   @override
   void initState() {
@@ -74,6 +78,136 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  void _snack(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+    );
+  }
+
+  Future<void> _runSync(Future<void> Function() action) async {
+    setState(() => _syncBusy = true);
+    try {
+      await action();
+    } catch (_) {
+      _snack(context.read<LanguageProvider>().s.syncError);
+    } finally {
+      if (mounted) setState(() => _syncBusy = false);
+    }
+  }
+
+  Future<void> _signIn() => _runSync(() async {
+        await SyncService.instance.signInWithGoogle();
+      });
+
+  Future<void> _signOut() => _runSync(() async {
+        await SyncService.instance.signOut();
+      });
+
+  Future<void> _upload() => _runSync(() async {
+        final s = context.read<LanguageProvider>().s;
+        final goals = context.read<GoalsProvider>().goals;
+        await SyncService.instance.uploadGoals(goals);
+        _snack(s.uploaded);
+      });
+
+  Future<void> _download() => _runSync(() async {
+        final s = context.read<LanguageProvider>().s;
+        final goals = await SyncService.instance.downloadGoals();
+        if (goals == null || goals.isEmpty) {
+          _snack(s.downloadEmpty);
+          return;
+        }
+        context.read<GoalsProvider>().replaceAll(goals);
+        _snack(s.downloaded);
+      });
+
+  Widget _buildSyncSection(AppStrings s) {
+    final sync = SyncService.instance;
+
+    if (!sync.firebaseReady) {
+      return Card(
+        child: ListTile(
+          leading: const Icon(Icons.cloud_off_rounded, color: PathlyTheme.textMuted),
+          title: Text(s.cloudSync,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+          subtitle: Text(s.syncNotConfigured,
+              style: const TextStyle(fontSize: 12, color: PathlyTheme.textMuted)),
+        ),
+      );
+    }
+
+    if (!sync.isSignedIn) {
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(s.cloudSyncDesc,
+                  style: const TextStyle(fontSize: 13, color: PathlyTheme.textSecondary)),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: _syncBusy ? null : _signIn,
+                icon: const Icon(Icons.login_rounded, size: 18),
+                label: Text(s.signInGoogle),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: PathlyTheme.primary,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 44),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.cloud_done_rounded, color: PathlyTheme.success),
+            title: Text('${s.signedInAs} ${sync.userEmail ?? ''}',
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+          ),
+          const Divider(height: 1, color: PathlyTheme.border),
+          ListTile(
+            leading: const Icon(Icons.cloud_upload_rounded, color: PathlyTheme.primary),
+            title: Text(s.uploadToCloud, style: const TextStyle(fontSize: 14)),
+            enabled: !_syncBusy,
+            onTap: _syncBusy ? null : _upload,
+          ),
+          const Divider(height: 1, color: PathlyTheme.border),
+          ListTile(
+            leading: const Icon(Icons.cloud_download_rounded, color: PathlyTheme.primary),
+            title: Text(s.downloadFromCloud, style: const TextStyle(fontSize: 14)),
+            enabled: !_syncBusy,
+            onTap: _syncBusy ? null : _download,
+          ),
+          const Divider(height: 1, color: PathlyTheme.border),
+          ListTile(
+            leading: const Icon(Icons.logout_rounded, color: PathlyTheme.danger),
+            title: Text(s.signOut,
+                style: const TextStyle(fontSize: 14, color: PathlyTheme.danger)),
+            enabled: !_syncBusy,
+            onTap: _syncBusy ? null : _signOut,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String text) => Text(
+        text.toUpperCase(),
+        style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: PathlyTheme.textMuted,
+            letterSpacing: 0.5),
+      );
+
   @override
   Widget build(BuildContext context) {
     final s = context.watch<LanguageProvider>().s;
@@ -91,12 +225,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                Text(s.dailyReminder.toUpperCase(),
-                    style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        color: PathlyTheme.textMuted,
-                        letterSpacing: 0.5)),
+                _sectionTitle(s.dailyReminder),
                 const SizedBox(height: 8),
                 Card(
                   child: Column(
@@ -137,6 +266,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 20),
+                _sectionTitle(s.cloudSync),
+                const SizedBox(height: 8),
+                _buildSyncSection(s),
               ],
             ),
     );

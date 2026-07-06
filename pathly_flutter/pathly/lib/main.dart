@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'theme/app_theme.dart';
 import 'services/goals_provider.dart';
 import 'services/ad_service.dart';
 import 'services/notification_service.dart';
+import 'services/sync_service.dart';
 import 'l10n/language_provider.dart';
 import 'l10n/app_strings.dart';
 import 'screens/home_screen.dart';
@@ -22,6 +24,15 @@ void main() async {
   final goalsProvider  = GoalsProvider();
 
   await NotificationService.instance.initialize();
+
+  // تهيئة Firebase للمزامنة السحابية — تُعطَّل الميزة بأمان إن لم يكتمل الإعداد.
+  // انظر FIREBASE_SETUP.md لخطوات التهيئة (flutterfire configure + ملفات المنصّات).
+  try {
+    await Firebase.initializeApp();
+    SyncService.instance.firebaseReady = true;
+  } catch (_) {
+    SyncService.instance.firebaseReady = false;
+  }
 
   await Future.wait([
     adService.initialize(),

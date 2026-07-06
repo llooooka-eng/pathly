@@ -124,6 +124,13 @@ class GoalsProvider extends ChangeNotifier {
     _save();
   }
 
+  /// استبدال كل الأهداف (يُستخدم بعد الاسترجاع من السحابة).
+  void replaceAll(List<Goal> goals) {
+    _goals = List<Goal>.from(goals);
+    notifyListeners();
+    _save();
+  }
+
   // ─── Seed data ──────────────────────────────────────────────────────────
   List<Goal> _defaultGoals() => [
         Goal(
