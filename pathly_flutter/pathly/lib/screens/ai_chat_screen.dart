@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/goal.dart';
 import '../services/ai_service.dart';
+import '../services/tts_service.dart';
 import '../theme/app_theme.dart';
 
 class AIChatScreen extends StatefulWidget {
@@ -55,6 +56,14 @@ class _AIChatScreenState extends State<AIChatScreen> {
       _messages.add(ChatMessage(text: response, isAI: true));
     });
     _scrollToBottom();
+  }
+
+  @override
+  void dispose() {
+    TtsService.instance.stop();
+    _controller.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void _scrollToBottom() {
@@ -128,13 +137,27 @@ class _AIChatScreenState extends State<AIChatScreen> {
             bottomRight: Radius.circular(msg.isAI ? 14 : 4),
           ),
         ),
-        child: Text(
-          msg.text,
-          style: TextStyle(
-            fontSize: 14,
-            color: msg.isAI ? const Color(0xFF3C3489) : Colors.white,
-            height: 1.5,
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              msg.text,
+              style: TextStyle(
+                fontSize: 14,
+                color: msg.isAI ? const Color(0xFF3C3489) : Colors.white,
+                height: 1.5,
+              ),
+            ),
+            if (msg.isAI)
+              GestureDetector(
+                onTap: () => TtsService.instance.speak(msg.text),
+                child: const Padding(
+                  padding: EdgeInsets.only(top: 6),
+                  child: Icon(Icons.volume_up_rounded, size: 16, color: Color(0xFF7C3AED)),
+                ),
+              ),
+          ],
         ),
       ),
     );
