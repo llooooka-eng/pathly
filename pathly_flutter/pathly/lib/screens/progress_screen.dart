@@ -34,7 +34,6 @@ class ProgressScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<GoalsProvider>();
-    final goal = provider.primaryGoal;
 
     return Scaffold(
       backgroundColor: PathlyTheme.surfaceAlt,
@@ -59,15 +58,21 @@ class ProgressScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text('تقدمي', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600)),
-                        SizedBox(height: 2),
-                        Text('الأسبوع الثاني عشر', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                      ],
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text('تقدمي', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600)),
+                          SizedBox(height: 2),
+                          Text('الأسبوع الثاني عشر',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(color: Colors.white70, fontSize: 12)),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(20)),

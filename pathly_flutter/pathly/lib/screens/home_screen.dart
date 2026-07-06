@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 import '../services/goals_provider.dart';
 import '../services/tts_service.dart';
 import '../theme/app_theme.dart';
