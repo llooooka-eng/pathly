@@ -1,16 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:share_plus/share_plus.dart';
 import '../services/goals_provider.dart';
+import '../l10n/language_provider.dart';
+import '../l10n/app_strings.dart';
+import '../models/goal.dart';
 import '../theme/app_theme.dart';
 
 class ProgressScreen extends StatelessWidget {
   const ProgressScreen({super.key});
 
+  void _shareProgress(BuildContext context, GoalsProvider provider) {
+    final s = context.read<LanguageProvider>().s;
+    final goal = provider.primaryGoal;
+    if (goal == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(s.shareNoData), behavior: SnackBarBehavior.floating),
+      );
+      return;
+    }
+    Share.share(_buildShareText(s, goal), subject: s.shareHeadline);
+  }
+
+  String _buildShareText(AppStrings s, Goal goal) {
+    final pct = (goal.progress * 100).toStringAsFixed(0);
+    return '${s.shareHeadline}\n\n'
+        '${goal.title} — $pct%\n'
+        '${goal.currentStreak} ${s.dayStreak} 🔥\n\n'
+        '${s.appTagline} — Pathly';
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<GoalsProvider>();
-    final goal = provider.primaryGoal;
 
     return Scaffold(
       backgroundColor: PathlyTheme.surfaceAlt,
@@ -20,6 +43,13 @@ class ProgressScreen extends StatelessWidget {
             pinned: true,
             expandedHeight: 100,
             backgroundColor: PathlyTheme.primary,
+            actions: [
+              IconButton(
+                tooltip: context.read<LanguageProvider>().s.shareProgress,
+                icon: const Icon(Icons.share_rounded, color: Colors.white),
+                onPressed: () => _shareProgress(context, provider),
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 color: PathlyTheme.primary,
@@ -28,15 +58,21 @@ class ProgressScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text('تقدمي', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600)),
-                        SizedBox(height: 2),
-                        Text('الأسبوع الثاني عشر', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                      ],
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text('تقدمي', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600)),
+                          SizedBox(height: 2),
+                          Text('الأسبوع الثاني عشر',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(color: Colors.white70, fontSize: 12)),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(20)),

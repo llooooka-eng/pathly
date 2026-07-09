@@ -12,6 +12,25 @@ class AdService extends ChangeNotifier {
           ? _rewardedIdAndroid
           : _rewardedIdIOS;
 
+  // معرّفات بانر تجريبية — استبدلها بمعرّفاتك قبل النشر.
+  static const String _bannerIdAndroid =
+      'ca-app-pub-3940256099942544/6300978111';
+  static const String _bannerIdIOS =
+      'ca-app-pub-3940256099942544/2934735716';
+
+  static String get _bannerUnitId =>
+      defaultTargetPlatform == TargetPlatform.android
+          ? _bannerIdAndroid
+          : _bannerIdIOS;
+
+  /// ينشئ بانر إعلاني جاهزًا للتحميل (يستخدمه AdBannerWidget).
+  BannerAd createBannerAd() => BannerAd(
+        adUnitId: _bannerUnitId,
+        size: AdSize.banner,
+        request: const AdRequest(),
+        listener: const BannerAdListener(),
+      );
+
   RewardedAd? _ad;
   bool _adLoaded = false;
   bool _sessionUnlocked = false;

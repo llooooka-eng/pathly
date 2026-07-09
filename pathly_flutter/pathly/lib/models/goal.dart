@@ -95,6 +95,36 @@ class Goal {
       isPro: isPro,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'category': category.name,
+        'description': description,
+        'startDate': startDate.toIso8601String(),
+        'targetDate': targetDate.toIso8601String(),
+        'currentStreak': currentStreak,
+        'totalDays': totalDays,
+        'progress': progress,
+        'lessons': lessons.map((l) => l.toJson()).toList(),
+        'isPro': isPro,
+      };
+
+  factory Goal.fromJson(Map<String, dynamic> json) => Goal(
+        id: json['id'] as String,
+        title: json['title'] as String,
+        category: GoalCategory.values.byName(json['category'] as String),
+        description: json['description'] as String? ?? '',
+        startDate: DateTime.parse(json['startDate'] as String),
+        targetDate: DateTime.parse(json['targetDate'] as String),
+        currentStreak: json['currentStreak'] as int? ?? 0,
+        totalDays: json['totalDays'] as int? ?? 0,
+        progress: (json['progress'] as num?)?.toDouble() ?? 0.0,
+        lessons: (json['lessons'] as List<dynamic>? ?? [])
+            .map((l) => DailyLesson.fromJson(l as Map<String, dynamic>))
+            .toList(),
+        isPro: json['isPro'] as bool? ?? false,
+      );
 }
 
 class DailyLesson {
@@ -111,6 +141,22 @@ class DailyLesson {
     this.audioUrl,
     this.isCompleted = false,
   });
+
+  Map<String, dynamic> toJson() => {
+        'day': day,
+        'content': content,
+        'translation': translation,
+        'audioUrl': audioUrl,
+        'isCompleted': isCompleted,
+      };
+
+  factory DailyLesson.fromJson(Map<String, dynamic> json) => DailyLesson(
+        day: json['day'] as int,
+        content: json['content'] as String,
+        translation: json['translation'] as String? ?? '',
+        audioUrl: json['audioUrl'] as String?,
+        isCompleted: json['isCompleted'] as bool? ?? false,
+      );
 }
 
 class GoalTemplate {

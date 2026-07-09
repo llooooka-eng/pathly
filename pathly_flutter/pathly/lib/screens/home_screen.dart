@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 import '../services/goals_provider.dart';
+import '../services/tts_service.dart';
 import '../theme/app_theme.dart';
 import '../models/goal.dart';
 import 'ai_chat_screen.dart';
@@ -139,7 +139,8 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () => TtsService.instance
+                        .speak(todayLesson?.content ?? goal.title),
                     icon: const Icon(Icons.volume_up_rounded, size: 16),
                     label: const Text('استمع للنطق'),
                     style: ElevatedButton.styleFrom(

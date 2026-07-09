@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'theme/app_theme.dart';
 import 'services/goals_provider.dart';
 import 'services/ad_service.dart';
+import 'services/notification_service.dart';
+import 'services/sync_service.dart';
 import 'l10n/language_provider.dart';
 import 'l10n/app_strings.dart';
 import 'screens/home_screen.dart';
@@ -11,22 +14,36 @@ import 'screens/progress_screen.dart';
 import 'screens/ai_chat_screen.dart';
 import 'screens/daily_unlock_screen.dart';
 import 'screens/language_picker_screen.dart';
+import 'screens/settings_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final adService      = AdService();
   final langProvider   = LanguageProvider();
+  final goalsProvider  = GoalsProvider();
+
+  await NotificationService.instance.initialize();
+
+  // تهيئة Firebase للمزامنة السحابية — تُعطَّل الميزة بأمان إن لم يكتمل الإعداد.
+  // انظر FIREBASE_SETUP.md لخطوات التهيئة (flutterfire configure + ملفات المنصّات).
+  try {
+    await Firebase.initializeApp();
+    SyncService.instance.firebaseReady = true;
+  } catch (_) {
+    SyncService.instance.firebaseReady = false;
+  }
 
   await Future.wait([
     adService.initialize(),
     langProvider.load(),
+    goalsProvider.load(),
   ]);
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => GoalsProvider()),
+        ChangeNotifierProvider.value(value: goalsProvider),
         ChangeNotifierProvider.value(value: adService),
         ChangeNotifierProvider.value(value: langProvider),
       ],
@@ -106,6 +123,12 @@ class _MainShellState extends State<MainShell> {
                 ],
               ),
             ),
+          ),
+          // زر الإعدادات (التذكير اليومي)
+          IconButton(
+            icon: const Icon(Icons.settings_rounded, color: Colors.white),
+            onPressed: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen())),
           ),
         ],
       ),
